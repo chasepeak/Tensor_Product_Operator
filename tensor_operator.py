@@ -4,40 +4,47 @@
 
 import math
 #import numpy as np
-from matrix import Matrix
+#from matrix import Matrix
+from sympy import I, Matrix
+from sympy.physics.quantum import TensorProduct
 
 class ReducibilityError(Exception):
     pass
 
 def main():
     matrix = [['l1','a','b'],['0','l2','c'],['0','0','l3']]
-    mat = Matrix(matrix)
-    print(mat)
+    matrix_dim = len(matrix)
+    nonzero_entries = []
+    for i in matrix:
+        print(i)
     print("When prompted, enter '0' for a given value, or '1' for it to remain unchanged")
-    for row in range(mat.dim):
-        for i in range(mat.dim):
-            if not mat.matrix[row][i] == '0':
-                new_val = input('Enter "0" or "1" for spot: {} <- ' .format(mat.matrix[row][i]))
+    for row in range(matrix_dim):
+        for i in range(matrix_dim):
+            if not matrix[row][i] == '0':
+                new_val = input('Enter "0" or "1" for spot: {} <- ' .format(matrix[row][i]))
                 if new_val == '0':
-                    mat.matrix[row][i] = '0'
+                    matrix[row][i] = '0'
                 elif new_val == '1':
-                    mat.matrix[row][i] = mat.matrix[row][i]
+                    matrix[row][i] = matrix[row][i]
+                    nonzero_entries.append(matrix[row][i])
                 else:
                     raise ValueError('please enter a valid input 0 or 1')
-    print(mat)
-    check_irreducibility(mat)
+    for i in matrix:
+        print(i)
 
     scaler = input('Enter the value from the matrix you wish to scale to 1: ')
-    non_zeroes = mat.get_nonzero_values()
-    while scaler not in non_zeroes:
-        print(mat)
+    while scaler not in nonzero_entries:
+        for i in matrix:
+            print(i)
         print('Error: please enter a value present in the given matrix')
         scaler = input('Enter the value from the matrix you wish to scale to 1: ')
-    for i in range(mat.dim):
-        for j in range(mat.dim):
-            mat.matrix[i][j] = '1' if mat.matrix[i][j] == scaler else mat.matrix[i][j]
-    print('final matrix:\n{}' .format(mat))
+    for i in range(matrix_dim):
+        for j in range(matrix_dim):
+            matrix[i][j] = '1' if matrix[i][j] == scaler else matrix[i][j]
 
+    A = Matrix(matrix)
+    print(A)
+"""
     tensor = None
     while not tensor in ['T','W']:
         tensor = input("Enter 'T' for T = A x I + I x A.\nEnter 'W' for W = A x A.\n")
@@ -71,7 +78,7 @@ def check_irreducibility(mat):
     if reducible:
         raise ReducibilityError('Matrix is reducible')
     pass
-"""
+
  35         if tensor == 1:
  36                 tensor_op1 = [["2*{0}" .format(matrix[0][0]), "2*{0}" .format(matrix[0][1]), "2*{0}" .format(matrix[0][2]), "0", "0", "0"],
  37                               ["0", "{0} + {1}" .format(matrix[0][0], matrix[1][1]), "{0}" .format(matrix[1][2]), "{0}" .format(matrix[0][1]), "{0}" .format(matrix[0][2]), "0"],
