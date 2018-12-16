@@ -21,7 +21,7 @@ def main():
     matrix = [['l1','a','b'],['0','l2','c'],['0','0','l3']]
     matrix_dim = len(matrix)
     nonzero_entries = []
-    matrix_rep(matrix, matrix_dim)
+    matrix_rep(matrix)
     print("When prompted, enter '0' to cancel a value, or '1' for it to remain unchanged.")
     for row in range(matrix_dim):
         for col in range(matrix_dim):
@@ -36,7 +36,7 @@ def main():
 
     scaler = input("Enter the value from the matrix you wish to scale to 1, or enter 'None': ")
     while scaler not in nonzero_entries and scaler == 'none': #this makes sure a valid input is entered
-        matrix_rep(matrix, matrix_dim)
+        matrix_rep(matrix)
         print('Error: please enter a value present in the given matrix')
         scaler = input('Enter the value from the matrix you wish to scale to 1: ')
     for i in range(matrix_dim):
@@ -46,7 +46,7 @@ def main():
                 break
 
     check_irreducibility(matrix)
-    matrix_rep(matrix, matrix_dim)
+    matrix_rep(matrix)
 
     tensor = None
     while not tensor in ['T','W']: #this makes sure a valid input is entered
@@ -72,13 +72,13 @@ def main():
         for i in range(len(symmetric_vectors)): #performs the computations
             symmetric_vectors[i] = list(T * symmetric_vectors[i])
         T_s = Matrix(symmetric_vectors).T
-        matrix_rep(T_s, sqrt(6))
+        matrix_rep(T_s)
     else:
         W = TensorProduct(mat,mat)
         for i in range(len(symmetric_vectors)):
             symmetric_vectors[i] = list(W * symmetric_vectors[i])
         W_s = Matrix(symmetric_vectors).T
-        matrix_rep(W_s, sqrt(6))
+        matrix_rep(W_s)
 
 
 def check_irreducibility(matrix): #runs through the conditions of reducibility (see Lemma 2.4)
@@ -107,7 +107,7 @@ def check_irreducibility(matrix): #runs through the conditions of reducibility (
     pass
 
 
-def matrix_rep(matrix, matrix_dim):
+def matrix_rep(matrix):
     if type(matrix) == list:
         mat = ''
         for i in matrix:
@@ -115,7 +115,7 @@ def matrix_rep(matrix, matrix_dim):
         print(mat.strip())
     else: #be careful with edge cases
             mat = ''
-            for i in range(int(matrix_dim ** 2 + 0.5)):
+            for i in range(matrix.shape[0]):
                 mat += '{}\n' .format(list(matrix.row(i)))
             print(mat.strip())
 
