@@ -64,14 +64,16 @@ def main():
     symmetric_vectors = [TensorProduct(e1,e1), TensorProduct(e1,e2) + TensorProduct(e2,e1), 
                          TensorProduct(e1,e3) + TensorProduct(e3,e1), TensorProduct(e2,e2),
                          TensorProduct(e2,e3) + TensorProduct(e3,e2), TensorProduct(e3,e3)]
-    #asymmetric_vectors = [TensorProduct(e1,e2) - TensorProduct(e2,e1), TensorProduct(e1,e3) - TensorProduct(e3,e1),
-    #                      TensorProduct(e2,e3) - TensorProduct(e3,e2)] #later implementation
+    asymmetric_vectors = [TensorProduct(e1,e2) - TensorProduct(e2,e1), TensorProduct(e1,e3) - TensorProduct(e3,e1),
+                          TensorProduct(e2,e3) - TensorProduct(e3,e2)] #later implementation
 
-    if tensor == 'T': 
+    if tensor == 'T':
         T = TensorProduct(mat,eye(3)) + TensorProduct(eye(3),mat)
         for i in range(len(symmetric_vectors)): #performs the computations
             symmetric_vectors[i] = list(T * symmetric_vectors[i])
         T_s = Matrix(symmetric_vectors).T
+        for i in [7,6,3]:
+            T_s.row_del(i)
         matrix_rep(T_s)
     else:
         W = TensorProduct(mat,mat)
