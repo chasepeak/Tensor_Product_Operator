@@ -78,6 +78,7 @@ def main():
             T_s.row_del(j)
         for k in [8,7,6,4,3,0]:
             T_as.row_del(k)
+        print()
         matrix_rep(T_s)
         print()
         matrix_rep(T_as)
@@ -93,6 +94,7 @@ def main():
             W_s.row_del(j)
         for k in [8,7,6,4,3,0]:
             W_as.row_del(k)
+        print()
         matrix_rep(W_s)
         print()
         matrix_rep(W_as)
