@@ -22,19 +22,18 @@ def main():
     matrix_dim = len(matrix)
     nonzero_entries = []
     matrix_rep(matrix)
-    print("When prompted, enter '0' to cancel a value, or '1' for it to remain unchanged.")
     for row in range(matrix_dim):
         for col in range(matrix_dim):
             if not matrix[row][col] == '0':
-                new_val = input('Enter "0" or "1" for spot: {} <- ' .format(matrix[row][col]))
+                new_val = input('Enter "0" or press "Enter" for spot: {} <- ' .format(matrix[row][col]))
                 if new_val == '0':
                     matrix[row][col] = '0'
-                elif new_val == '1':
+                elif not new_val:
                     nonzero_entries.append(matrix[row][col])
                 else:
-                    raise ValueError('please enter a valid input 0 or 1')
+                    raise ValueError('please enter a valid input 0 or press "Enter"')
 
-    scaler = input("Enter the value from the matrix you wish to scale to 1, or enter 'None': ")
+    scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
     while scaler not in nonzero_entries and scaler == 'none': #this makes sure a valid input is entered
         matrix_rep(matrix)
         print('Error: please enter a value present in the given matrix')
@@ -65,22 +64,38 @@ def main():
                          TensorProduct(e1,e3) + TensorProduct(e3,e1), TensorProduct(e2,e2),
                          TensorProduct(e2,e3) + TensorProduct(e3,e2), TensorProduct(e3,e3)]
     asymmetric_vectors = [TensorProduct(e1,e2) - TensorProduct(e2,e1), TensorProduct(e1,e3) - TensorProduct(e3,e1),
-                          TensorProduct(e2,e3) - TensorProduct(e3,e2)] #later implementation
+                          TensorProduct(e2,e3) - TensorProduct(e3,e2)] 
 
     if tensor == 'T':
         T = TensorProduct(mat,eye(3)) + TensorProduct(eye(3),mat)
         for i in range(len(symmetric_vectors)): #performs the computations
             symmetric_vectors[i] = list(T * symmetric_vectors[i])
+            if i < 3:
+                asymmetric_vectors[i] = list(T * asymmetric_vectors[i])
         T_s = Matrix(symmetric_vectors).T
-        for i in [7,6,3]:
-            T_s.row_del(i)
+        T_as = Matrix(asymmetric_vectors).T
+        for j in [7,6,3]:
+            T_s.row_del(j)
+        for k in [8,7,6,4,3,0]:
+            T_as.row_del(k)
         matrix_rep(T_s)
+        print()
+        matrix_rep(T_as)
     else:
         W = TensorProduct(mat,mat)
         for i in range(len(symmetric_vectors)):
             symmetric_vectors[i] = list(W * symmetric_vectors[i])
+            if i < 3:
+                asymmetric_vectors[i] = list(W * asymmetric_vectors[i])
         W_s = Matrix(symmetric_vectors).T
+        W_as = Matrix(asymmetric_vectors).T
+        for j in [7,6,3]:
+            W_s.row_del(j)
+        for k in [8,7,6,4,3,0]:
+            W_as.row_del(k)
         matrix_rep(W_s)
+        print()
+        matrix_rep(W_as)
 
 
 def check_irreducibility(matrix): #runs through the conditions of reducibility (see Lemma 2.4)
