@@ -1,7 +1,7 @@
 '''
 Unitary Equivalence for Tensor Products of Linear Transformations:
 Chase M. Peak
-12/16/18 revised
+01/10/19 revised
 
 This program takes user input to construct a 3x3 upper-triangular matrix, and then checks to
 make sure it is irreducible before performing the tensor product. Then, it utilizes the sympy
@@ -20,27 +20,26 @@ class ReducibilityError(Exception):
 def main():
     matrix = [['l1','a','b'],['0','l2','c'],['0','0','l3']]
     matrix_dim = len(matrix)
-    nonzero_entries = []
+    nonzero_entries = ['l1','a','b','l2','c','l3']
     matrix_rep(matrix)
     for row in range(matrix_dim):
         for col in range(matrix_dim):
             if not matrix[row][col] == '0':
                 new_val = input('Enter "0" or press "Enter" for spot: {} <- ' .format(matrix[row][col]))
                 if new_val == '0':
+                    nonzero_entries.remove(matrix[row][col])
                     matrix[row][col] = '0'
-                elif not new_val:
-                    nonzero_entries.append(matrix[row][col])
-                else:
+                elif new_val:
                     raise ValueError('please enter a valid input 0 or press "Enter"')
 
     scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
-    while scaler not in nonzero_entries and scaler == 'none': #this makes sure a valid input is entered
+    while scaler not in nonzero_entries and scaler: #this makes sure a valid input is entered
         matrix_rep(matrix)
         print('Error: please enter a value present in the given matrix')
-        scaler = input('Enter the value from the matrix you wish to scale to 1: ')
+        scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
     for i in range(matrix_dim):
         for j in range(matrix_dim):
-            if matrix[i][j] == scaler:
+            if i <= j and matrix[i][j] == scaler: #speeds up the search process by comparing rows and columns
                 matrix[i][j] = '1'
                 break
 
@@ -56,49 +55,7 @@ def main():
             tensor = None
 
     mat = Matrix(matrix)
-
-    e1 = Matrix(3,1,[1,0,0]) #initialization of basis vectors
-    e2 = Matrix(3,1,[0,1,0])
-    e3 = Matrix(3,1,[0,0,1])
-    symmetric_vectors = [TensorProduct(e1,e1), TensorProduct(e1,e2) + TensorProduct(e2,e1), 
-                         TensorProduct(e1,e3) + TensorProduct(e3,e1), TensorProduct(e2,e2),
-                         TensorProduct(e2,e3) + TensorProduct(e3,e2), TensorProduct(e3,e3)]
-    asymmetric_vectors = [TensorProduct(e1,e2) - TensorProduct(e2,e1), TensorProduct(e1,e3) - TensorProduct(e3,e1),
-                          TensorProduct(e2,e3) - TensorProduct(e3,e2)] 
-
-    if tensor == 'T':
-        T = TensorProduct(mat,eye(3)) + TensorProduct(eye(3),mat)
-        for i in range(len(symmetric_vectors)): #performs the computations
-            symmetric_vectors[i] = list(T * symmetric_vectors[i])
-            if i < 3:
-                asymmetric_vectors[i] = list(T * asymmetric_vectors[i])
-        T_s = Matrix(symmetric_vectors).T
-        T_as = Matrix(asymmetric_vectors).T
-        for j in [7,6,3]:
-            T_s.row_del(j)
-        for k in [8,7,6,4,3,0]:
-            T_as.row_del(k)
-        print()
-        matrix_rep(T_s)
-        print()
-        matrix_rep(T_as)
-    else:
-        W = TensorProduct(mat,mat)
-        for i in range(len(symmetric_vectors)):
-            symmetric_vectors[i] = list(W * symmetric_vectors[i])
-            if i < 3:
-                asymmetric_vectors[i] = list(W * asymmetric_vectors[i])
-        W_s = Matrix(symmetric_vectors).T
-        W_as = Matrix(asymmetric_vectors).T
-        for j in [7,6,3]:
-            W_s.row_del(j)
-        for k in [8,7,6,4,3,0]:
-            W_as.row_del(k)
-        print()
-        matrix_rep(W_s)
-        print()
-        matrix_rep(W_as)
-
+    create_tensor(mat, tensor)
 
 def check_irreducibility(matrix): #runs through the conditions of reducibility (see Lemma 2.4)
     diagonal = []
@@ -136,8 +93,36 @@ def matrix_rep(matrix):
             mat = ''
             for i in range(matrix.shape[0]):
                 mat += '{}\n' .format(list(matrix.row(i)))
-            print(mat.strip())
+            print(mat)
 
+
+def create_tensor(matrix, tensor):
+    e1 = Matrix(3,1,[1,0,0]) #initialization of basis vectors
+    e2 = Matrix(3,1,[0,1,0])
+    e3 = Matrix(3,1,[0,0,1])
+
+    symmetric_vectors = [TensorProduct(e1,e1), TensorProduct(e1,e2) + TensorProduct(e2,e1), 
+                         TensorProduct(e1,e3) + TensorProduct(e3,e1), TensorProduct(e2,e2),
+                         TensorProduct(e2,e3) + TensorProduct(e3,e2), TensorProduct(e3,e3)]
+    asymmetric_vectors = [TensorProduct(e1,e2) - TensorProduct(e2,e1), TensorProduct(e1,e3) - TensorProduct(e3,e1),
+                          TensorProduct(e2,e3) - TensorProduct(e3,e2)] 
+    if tensor == 'T':
+        Tens = TensorProduct(matrix,eye(3)) + TensorProduct(eye(3),matrix)
+    else:
+        Tens = TensorProduct(matrix,matrix)
+    for i in range(len(symmetric_vectors)): #performs the computations
+        symmetric_vectors[i] = list(Tens * symmetric_vectors[i])
+        if i < 3:
+            asymmetric_vectors[i] = list(Tens * asymmetric_vectors[i])
+    Tens_s = Matrix(symmetric_vectors).T
+    Tens_as = Matrix(asymmetric_vectors).T
+
+    for j in [7,6,3]: #deletes the repeated rows (correction due to change in basis)
+        Tens_s.row_del(j)
+    for k in [8,7,6,4,3,0]:
+        Tens_as.row_del(k)
+    matrix_rep(Tens_s)
+    matrix_rep(Tens_as)
 
 if __name__ == "__main__":
     main()
