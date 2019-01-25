@@ -1,7 +1,7 @@
 '''
 Unitary Equivalence for Tensor Products of Linear Transformations:
 Chase M. Peak
-01/10/19 revised
+01/24/19 revised
 
 This program takes user input to construct a 3x3 upper-triangular matrix, and then checks to
 make sure it is irreducible before performing the tensor product. Then, it utilizes the sympy
@@ -10,7 +10,6 @@ module to manipulate the matrices.
 *Work in progress (more features will be added later on)
 '''
 
-from math import sqrt
 from sympy import *
 from sympy.physics.quantum import TensorProduct
 
@@ -18,32 +17,16 @@ class ReducibilityError(Exception):
     pass
 
 def main():
-    matrix = [['l1','a','b'],['0','l2','c'],['0','0','l3']]
-    matrix_dim = len(matrix)
-    nonzero_entries = ['l1','a','b','l2','c','l3']
-    matrix_rep(matrix)
-    for row in range(matrix_dim):
-        for col in range(matrix_dim):
-            if not matrix[row][col] == '0':
-                new_val = input('Enter "0" or press "Enter" for spot: {} <- ' .format(matrix[row][col]))
-                if new_val == '0':
-                    nonzero_entries.remove(matrix[row][col])
-                    matrix[row][col] = '0'
-                elif new_val:
-                    raise ValueError('please enter a valid input 0 or press "Enter"')
+    try:
+        dimension = int(input("Enter the dimension of your matrix (between 2 and 5): "))
+        if dimension not in range(2,6):
+            raise Error
+    except:
+        print("Please enter a valid integer between 2 and 5.")
+        exit()
 
-    scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
-    while scaler not in nonzero_entries and scaler: #this makes sure a valid input is entered
-        matrix_rep(matrix)
-        print('Error: please enter a value present in the given matrix')
-        scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
-    for i in range(matrix_dim):
-        for j in range(matrix_dim):
-            if i <= j and matrix[i][j] == scaler: #speeds up the search process by comparing rows and columns
-                matrix[i][j] = '1'
-                break
-
-    check_irreducibility(matrix)
+    matrix = form_matrix(dimension)
+    #check_irreducibility(matrix)
     matrix_rep(matrix)
 
     tensor = None
@@ -82,6 +65,33 @@ def check_irreducibility(matrix): #runs through the conditions of reducibility (
         raise ReducibilityError('Matrix is reducible')
     pass
 
+
+def form_matrix(dimension):
+    letters = [chr(x) for x in range(num_entries(dimension) + 96, 96, -1)]
+    diagonal = ['l{}'.format(x) for x in range(1,dimension + 1)]
+    matrix = [[0 for x in range(dimension)] for x in range(dimension)]
+    values = diagonal
+    for i in range(dimension):
+        for j in range(i,dimension):
+            if (i == j):
+                new_val = input("For entry at {}, enter any key to set to 0 or press 'Enter'  for {} to remain: " .format((i + 1, j + 1), diagonal[i]))
+                matrix[i][j] = diagonal[i] if not new_val else '0'
+            else:
+                current_letter = letters.pop()
+                new_val = input("For entry at {}, enter any key to set to 0 or press 'Enter'  for {} to remain: " .format((i + 1, j + 1), current_letter))
+                matrix[i][j] = current_letter if not new_val else '0'
+    matrix_rep(matrix)
+    scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
+    while not (scaler in letters or scaler in diagonal) and scaler: #this makes sure a valid input is entered
+        matrix_rep(matrix)
+        print('Please enter a value present in the given matrix.')
+        scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
+    for i in range(dimension):
+        for j in range(i, dimension):
+            if matrix[i][j] == scaler: #speeds up the search process by comparing rows and columns
+                matrix[i][j] = '1'
+                break
+    return matrix
 
 def matrix_rep(matrix):
     if type(matrix) == list:
@@ -123,6 +133,15 @@ def create_tensor(matrix, tensor):
         Tens_as.row_del(k)
     matrix_rep(Tens_s)
     matrix_rep(Tens_as)
+
+
+def num_entries(dimension):
+    assert dimension > 0
+    assert type(dimension) == int
+    if dimension < 4:
+        return dimension - 1 + dimension // 3
+    return dimension + num_entries(dimension - 1)
+
 
 if __name__ == "__main__":
     main()
