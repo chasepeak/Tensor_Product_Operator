@@ -9,25 +9,11 @@ module to manipulate the matrices.
 
 *Work in progress (more features will be added later on)
 '''
-
+from UTMatrix import *
 from sympy import *
 from sympy.physics.quantum import TensorProduct
 
-class ReducibilityError(Exception):
-    pass
-
 def main():
-    try:
-        dimension = int(input("Enter the dimension of your matrix (between 2 and 5): "))
-        if dimension not in range(2,6):
-            raise Error
-    except:
-        print("Please enter a valid integer between 2 and 5.")
-        exit()
-
-    matrix = form_matrix(dimension)
-    #check_irreducibility(matrix)
-    matrix_rep(matrix)
 
     tensor = None
     while not tensor in ['T','W']: #this makes sure a valid input is entered
@@ -39,72 +25,6 @@ def main():
 
     mat = Matrix(matrix)
     create_tensor(mat, tensor)
-
-def check_irreducibility(matrix): #runs through the conditions of reducibility (see Lemma 2.4)
-    diagonal = []
-    for i in matrix:
-        for j in i:
-            if i == j:
-                diagonal.append(matrix[i][j])
-    reducible = False
-    if not '0' in diagonal:
-        if (matrix[0][1] == '0' and (matrix[0][2] == '0' or matrix[1][2] == '0') or 
-            matrix[0][2] == '0' and (matrix[0][1] == '0' or matrix[1][2] == '0')):
-            reducible = True
-    elif diagonal == ['0','0','0'] or diagonal == ['l1','0','l3']:
-        if matrix[0][1] == '0' or matrix[1][2] == '0':
-            reducible = True
-    else:
-        if diagonal == ['0','0','l3']:
-            if matrix[0][1] == '0' and (matrix[0][2] == '0' or matrix[1][2] == '0'):
-                reducible = True
-        elif diagonal == ['l1','0','0']:
-            if matrix[1][2] == '0' and (matrix[0][1] == '0' or matrix[0][2] == '0'):
-                reducible = True
-    if reducible:
-        raise ReducibilityError('Matrix is reducible')
-    pass
-
-
-def form_matrix(dimension):
-    letters = [chr(x) for x in range(num_entries(dimension) + 96, 96, -1)]
-    diagonal = ['l{}'.format(x) for x in range(1,dimension + 1)]
-    matrix = [[0 for x in range(dimension)] for x in range(dimension)]
-    values = diagonal
-    for i in range(dimension):
-        for j in range(i,dimension):
-            if (i == j):
-                new_val = input("For entry at {}, enter any key to set to 0 or press 'Enter'  for {} to remain: " .format((i + 1, j + 1), diagonal[i]))
-                matrix[i][j] = diagonal[i] if not new_val else '0'
-            else:
-                current_letter = letters.pop()
-                new_val = input("For entry at {}, enter any key to set to 0 or press 'Enter'  for {} to remain: " .format((i + 1, j + 1), current_letter))
-                matrix[i][j] = current_letter if not new_val else '0'
-    matrix_rep(matrix)
-    scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
-    while not (scaler in letters or scaler in diagonal) and scaler: #this makes sure a valid input is entered
-        matrix_rep(matrix)
-        print('Please enter a value present in the given matrix.')
-        scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
-    for i in range(dimension):
-        for j in range(i, dimension):
-            if matrix[i][j] == scaler: #speeds up the search process by comparing rows and columns
-                matrix[i][j] = '1'
-                break
-    return matrix
-
-def matrix_rep(matrix):
-    if type(matrix) == list:
-        mat = ''
-        for i in matrix:
-            mat += '{}\n'.format(i)
-        print(mat.strip())
-    else: #be careful with edge cases
-            mat = ''
-            for i in range(matrix.shape[0]):
-                mat += '{}\n' .format(list(matrix.row(i)))
-            print(mat)
-
 
 def create_tensor(matrix, tensor):
     e1 = Matrix(3,1,[1,0,0]) #initialization of basis vectors
@@ -133,15 +53,6 @@ def create_tensor(matrix, tensor):
         Tens_as.row_del(k)
     matrix_rep(Tens_s)
     matrix_rep(Tens_as)
-
-
-def num_entries(dimension):
-    assert dimension > 0
-    assert type(dimension) == int
-    if dimension < 4:
-        return dimension - 1 + dimension // 3
-    return dimension + num_entries(dimension - 1)
-
 
 if __name__ == "__main__":
     main()
