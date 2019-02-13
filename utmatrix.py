@@ -1,11 +1,12 @@
 class UTMatrix:
 
-    def __init__(self): #upper triangular matrices
-        self.dimension = set_dimension()
+    def __init__(self, dimension = None): #upper triangular matrices
+        self.dimension = set_dimension() if not dimension else dimension
         self.rows = self.dimension
         self.cols = self.dimension
         self.matrix = [[0 for x in range(self.dimension)] for x in range(self.dimension)]
         self.diagonal = [self.matrix[x][x] for x in range(self.dimension)]
+        self.tensor = None
 
     def __repr__(self):
         str_start = "| "
@@ -14,8 +15,8 @@ class UTMatrix:
         for i in self.matrix:
             default_str = ""
             for j in range(len(i)):
-                default_str += ("{:>4},".format(i[j]) if (j < len(i) - 1) 
-                                else "{:>4}".format(i[j]))
+                default_str += ("{}, ".format(i[j]) if (j < len(i) - 1) 
+                                else "{}".format(i[j]))
             result += str_start + default_str + str_end
         return result.strip()
 
@@ -51,7 +52,7 @@ class UTMatrix:
         
     def scale_matrix(self, letters, diagonal):
         scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
-        while not (scaler in diagonal or scaler in letters):
+        while scaler and not (scaler in diagonal or scaler in letters):
             print(x)
             print("Please enter a value present in the given matrix to scale.")
             scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
@@ -91,9 +92,3 @@ def set_dimension():
     except:
         print("Please enter a valid integer between 3 and 5")
         exit()
-
-if __name__ == "__main__":
-    x = UTMatrix()
-#    x.create_matrix()
-#    print(x)
-#    print(x.check_reducibility())

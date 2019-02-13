@@ -1,5 +1,11 @@
-from utmatrix import *
-from tensor_product import *
+from UTMatrix import *
+from tensor_operator import *
 
 def main():
-   return None 
+    matrix = UTMatrix()
+    matrix.create_matrix()
+    set_tensor(matrix)
+    create_tensor(matrix)
+
+if __name__ == "__main__":
+    main()
