@@ -46,22 +46,17 @@ def create_tensor(mat):
         Tens_s.row_del(j)
     for k in [8,7,6,4,3,0]:
         Tens_as.row_del(k)
-    convert_matrix(Tens_s, 6)
-    convert_matrix(Tens_as, 3)
 
-def convert_matrix(matrix, mat_size):
-    mat = list(matrix)
-    mat_dimension = int(math.sqrt(len(mat)))
+    print("\nSymmetric Matrix:\n")
+    convert_matrix(Tens_s)
+    print("\nAnti-Symmetric Matrix:\n")
+    convert_matrix(Tens_as)
 
-    sublist = []
-    new_matrix = [] #something is not right here
-    for i in mat:
-        if len(sublist) < mat_size:
-            sublist.append(i)
-        else:
-            new_matrix.append(sublist)
-            sublist = []
-    print(new_matrix)
-    converted = UTMatrix(mat_size)
+def convert_matrix(matrix):
+    mat_dimension = int(matrix.shape[0])
+    new_matrix = []
+    for i in range(mat_dimension):
+        new_matrix.append(matrix.row(i))
+    converted = UTMatrix(mat_dimension)
     converted.matrix = new_matrix
     print(converted)

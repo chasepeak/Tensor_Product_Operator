@@ -15,8 +15,8 @@ class UTMatrix:
         for i in self.matrix:
             default_str = ""
             for j in range(len(i)):
-                default_str += ("{}, ".format(i[j]) if (j < len(i) - 1) 
-                                else "{}".format(i[j]))
+                default_str += ("{:>10}, ".format(str(i[j])) if (j < len(i) - 1) 
+                                else "{:>10}".format(str(i[j])))
             result += str_start + default_str + str_end
         return result.strip()
 
@@ -39,21 +39,31 @@ class UTMatrix:
     def create_matrix(self):
         letters = [chr(x) for x in range(self.get_num_entries() + 96, 96, -1)]
         diagonal = ['l{}'.format(x) for x in range(1, self.dimension + 1)]
+        letter_tracker = len(letters)
         for i in range(self.dimension):
             for j in range(i, self.dimension):
                 if i == j:
                     new_val = input("For entry at {}, enter any key to set to 0 or press 'Enter'  for {} to remain: " .format((i, j), diagonal[i]))
+                    if not new_val:
+                        self.matrix[i][j] = diagonal[i]
+                    else:
+                        self.matrix[i][j] = '0'
+                        diagonal.remove(diagonal[i])
                     self.matrix[i][i] = diagonal[i] if not new_val else "0"
+                    if new_val:
+                        diagonal[i] = None
                 else:
-                    current_letter = letters.pop()
+                    letter_tracker -= 1
+                    current_letter = letters[letter_tracker]
                     new_val = input("For entry at {}, enter any key to set to 0 or press 'Enter'  for {} to remain: " .format((i, j), current_letter))
                     self.matrix[i][j] = current_letter if not new_val else "0"
+                    if new_val:
+                        letters[letter_tracker] = None
         self.scale_matrix(letters, diagonal)
         
     def scale_matrix(self, letters, diagonal):
         scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
         while scaler and not (scaler in diagonal or scaler in letters):
-            print(x)
             print("Please enter a value present in the given matrix to scale.")
             scaler = input('Enter the value from the matrix you wish to scale to 1, or press "Enter": ')
         for i in range(self.dimension):
